@@ -1,0 +1,953 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Dashboard Penjadwalan Pelabuhan</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit}
+a{color:#1B3F8B}
+.card{background:#fff;border:1px solid #DDE3EC;border-radius:14px}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;letter-spacing:-0.01em}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:10px;border:1px solid transparent;font-size:14px;font-weight:700;text-decoration:none;transition:background .15s,transform .15s,box-shadow .15s}
+.btn:active{transform:translateY(1px)}
+.btn-navy{background:#0F2A5C;color:#fff}
+.btn-navy:hover{background:#1B3F8B}
+.btn-gold{background:#F5B335;color:#3B2606}
+.btn-gold:hover{background:#FFC555}
+.btn-green{background:#047857;color:#fff}
+.btn-green:hover{background:#065F46}
+.btn-out{background:#fff;color:#0F2A5C;border-color:#C5CEDC}
+.btn-out:hover{background:#F1F5FA;border-color:#0F2A5C}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:3px solid #F5B335;outline-offset:2px}
+.nav{display:flex;align-items:center;gap:12px;width:100%;min-height:46px;padding:0 14px;border-radius:10px;border:0;background:transparent;color:#C9D4EA;font-size:14px;font-weight:600;text-align:left;transition:background .15s,color .15s}
+.nav:hover{background:rgba(255,255,255,.08);color:#fff}
+.b{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.b::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor}
+.b-ok{background:#D9F5E8;color:#05603F}
+.b-warn{background:#FDEFC7;color:#8A4B06}
+.b-bad{background:#FDE0E0;color:#A31B1B}
+.b-info{background:#E2EBFA;color:#1B3F8B}
+.b-mute{background:#E9EDF3;color:#475569}
+.tr{display:grid;grid-template-columns:1.1fr 1.1fr 1fr 1.2fr .9fr .8fr 1fr;gap:12px;align-items:center;padding:12px 18px;border-top:1px solid #E8EDF4;font-size:13.5px;color:#1E293B;min-width:860px}
+.tr:hover{background:#F5F8FD}
+.th{background:#F3F6FA;color:#475569;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-top:0}
+.th:hover{background:#F3F6FA}
+.chip{min-height:36px;padding:0 14px;border-radius:999px;border:1px solid #C5CEDC;background:#fff;color:#334155;font-size:13px;font-weight:600;transition:background .15s}
+.chip:hover{background:#EEF3FA}
+.slot{display:block;width:100%;text-align:left;padding:14px;border-radius:12px;border:1.5px solid #DDE3EC;background:#fff;color:#1E293B;transition:border-color .15s,box-shadow .15s,transform .15s}
+.slot:hover:enabled{border-color:#1B3F8B;box-shadow:0 4px 14px rgba(15,42,92,.12);transform:translateY(-1px)}
+.slot:disabled{background:#F3F5F8;color:#7A8699;cursor:not-allowed}
+.bar{height:100%;display:block;border-radius:4px 4px 0 0;border:0;padding:0;background:#C9D6EE;transition:background .15s}
+.bar:hover,.bar:focus-visible{background:#0F2A5C}
+.scanline{animation:scan 1.4s ease-in-out infinite alternate}
+@keyframes scan{from{top:8%}to{top:88%}}
+.pulse{animation:pulse 1.6s ease-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(4,120,87,.45)}100%{box-shadow:0 0 0 14px rgba(4,120,87,0)}}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fi{display:block;width:100%;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid #C5CEDC;background:#fff;color:#1E293B;font-size:14px}
+.fi:focus{outline:3px solid #BFD2F5;border-color:#1B3F8B}
+@media (max-width:860px){.side{max-width:none!important}.cols2{grid-template-columns:minmax(0,1fr)!important}}
+</style>
+</helmet>
+<div style="display:flex;flex-wrap:wrap;min-height:1000px;background:#F2F5F9;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E293B">
+
+  <!-- SIDEBAR -->
+  <aside class="side" style="flex:1 1 264px;max-width:264px;min-width:0;background:#0A1F44;color:#fff;padding:22px 16px;display:flex;flex-direction:column;gap:22px">
+    <div style="display:flex;align-items:center;gap:12px;padding:0 6px">
+      <div style="width:42px;height:42px;border-radius:11px;background:#F5B335;display:flex;align-items:center;justify-content:center;color:#0A1F44">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="2"></circle><path d="M12 7v14M5 13H3a9 9 0 0018 0h-2M8.5 11h7"></path></svg>
+      </div>
+      <div>
+        <div style="font-weight:800;font-size:17px;letter-spacing:-0.01em">PortSlot</div>
+        <div style="font-size:11.5px;color:#9FB0D0;font-weight:500">Penjadwalan &amp; Validasi</div>
+      </div>
+    </div>
+    <nav aria-label="Navigasi utama" style="display:flex;flex-direction:column;gap:4px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#7F92B6;padding:0 14px 6px">MENU</div>
+      <button class="nav" style="{{nav.overview}}" onClick="{{go.overview}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
+        <span>Overview</span>
+      </button>
+      <button class="nav" style="{{nav.booking}}" onClick="{{go.booking}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"></rect><path d="M3 9.5h18M8 2.5v4M16 2.5v4"></path></svg>
+        <span>Penjadwalan Truck / Slot Booking</span>
+      </button>
+      <button class="nav" style="{{nav.docs}}" onClick="{{go.docs}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.5-3 8-7 9.5-4-1.5-7-5-7-9.5V6l7-3z"></path><path d="M8.8 12l2.2 2.2 4.2-4.4"></path></svg>
+        <span>Validasi Dokumen &amp; Port Pass</span>
+      </button>
+      <button class="nav" style="{{nav.track}}" onClick="{{go.track}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l9-5 9 5v8l-9 5-9-5V8z"></path><path d="M3 8l9 5 9-5M12 13v8"></path></svg>
+        <span>Tracking Kontainer &amp; Cargo</span>
+      </button>
+      <button class="nav" style="{{nav.help}}" onClick="{{go.help}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.7 7.1L4 20.5l1.4-4.6A8 8 0 1121 12z"></path></svg>
+        <span>Pusat Bantuan &amp; Chatbot CS</span>
+      </button>
+    </nav>
+    <div style="margin-top:auto;border-radius:12px;background:rgba(255,255,255,.07);padding:14px;font-size:12.5px;line-height:1.5;color:#C9D4EA">
+      <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:#fff;margin-bottom:4px"><span class="pulse" style="width:9px;height:9px;border-radius:50%;background:#10B981;display:inline-block"></span>Gerbang terminal aktif</div>
+      Operasional gate 24 jam. Pastikan truk tiba di dalam jendela slot Anda.
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column">
+
+    <!-- TOP BAR -->
+    <header style="display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:16px 28px;background:#fff;border-bottom:1px solid #DDE3EC;position:relative">
+      <div style="flex:1 1 260px;min-width:0">
+        <h1 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#0A1F44">{{head.title}}</h1>
+        <div style="font-size:13px;color:#566378;margin-top:2px">{{head.sub}}</div>
+      </div>
+      <button class="btn btn-gold" onClick="{{go.booking}}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+        Buat Jadwal Pengambilan Baru
+      </button>
+      <button aria-label="Notifikasi" onClick="{{toggleNotif}}" style="position:relative;width:44px;height:44px;border-radius:10px;border:1px solid #C5CEDC;background:#fff;color:#0F2A5C;display:flex;align-items:center;justify-content:center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 1112 0v5.5l1.5 2h-15l1.5-2z"></path><path d="M10 21h4"></path></svg>
+        <sc-if value="{{unreadAny}}" hint-placeholder-val="{{ true }}"><span style="position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:#C62828;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff">{{unread}}</span></sc-if>
+      </button>
+      <div style="display:flex;align-items:center;gap:10px;padding:4px 14px 4px 4px;border-radius:999px;border:1px solid #DDE3EC;background:#F7F9FC">
+        <div style="width:38px;height:38px;border-radius:50%;background:#0F2A5C;color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center">SK</div>
+        <div style="line-height:1.25">
+          <div style="font-size:13.5px;font-weight:700;color:#0A1F44">PT Samudra Karya Logistik</div>
+          <div style="font-size:12px;color:#566378">Perusahaan Logistik · Admin</div>
+        </div>
+      </div>
+
+      <sc-if value="{{notifOpen}}" hint-placeholder-val="{{ false }}">
+        <div class="card" style="position:absolute;top:78px;right:28px;width:min(380px,calc(100% - 32px));z-index:30;box-shadow:0 18px 40px rgba(10,31,68,.18);overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #E8EDF4">
+            <strong style="font-size:15px">Notifikasi real-time</strong>
+            <button onClick="{{markRead}}" style="border:0;background:transparent;color:#1B3F8B;font-weight:700;font-size:13px;min-height:32px">Tandai dibaca</button>
+          </div>
+          <sc-for list="{{notifs}}" as="n" hint-placeholder-count="3">
+            <div style="display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid #F0F3F8;background:{{n.bg}}">
+              <span class="{{n.cls}}" style="align-self:flex-start;padding:4px 8px">{{n.tag}}</span>
+              <div style="min-width:0">
+                <div style="font-size:13.5px;line-height:1.45;color:#1E293B">{{n.text}}</div>
+                <div style="font-size:12px;color:#64748B;margin-top:2px">{{n.time}}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </header>
+
+    <main style="padding:26px 28px 120px;display:flex;flex-direction:column;gap:22px;max-width:1240px;width:100%">
+
+<!-- ===================== OVERVIEW ===================== -->
+<sc-if value="{{v.overview}}" hint-placeholder-val="{{ true }}">
+
+      <!-- KPI -->
+      <section aria-label="Ringkasan" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px">
+        <div class="card" style="padding:20px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div style="font-size:13.5px;font-weight:600;color:#566378">Total Pengambilan Hari Ini</div>
+            <span style="width:38px;height:38px;border-radius:10px;background:#E2EBFA;color:#1B3F8B;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"></path><circle cx="7" cy="17.5" r="1.8"></circle><circle cx="17" cy="17.5" r="1.8"></circle></svg></span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:10px;margin-top:10px">
+            <span style="font-size:40px;font-weight:800;letter-spacing:-0.03em;color:#0A1F44;line-height:1">148</span>
+            <span style="font-size:14px;color:#566378">truk terjadwal</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:14px;font-size:13px">
+            <span class="b b-ok" style="padding:3px 9px">+12%</span><span style="color:#566378">dibanding kemarin (132)</span>
+          </div>
+          <div style="margin-top:14px;height:8px;border-radius:5px;background:#E9EDF3;overflow:hidden"><div style="width:72%;height:100%;background:#0F2A5C"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#566378;margin-top:6px"><span>107 sudah gate-out</span><span>41 menunggu</span></div>
+        </div>
+
+        <div class="card" style="padding:20px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div style="font-size:13.5px;font-weight:600;color:#566378">Status Validasi Dokumen</div>
+            <span style="width:38px;height:38px;border-radius:10px;background:#D9F5E8;color:#05603F;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.5-3 8-7 9.5-4-1.5-7-5-7-9.5V6l7-3z"></path><path d="M8.8 12l2.2 2.2 4.2-4.4"></path></svg></span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px">
+            <div><div style="font-size:30px;font-weight:800;color:#05603F;line-height:1">112</div><div style="font-size:12.5px;color:#566378;margin-top:4px">Disetujui</div></div>
+            <div><div style="font-size:30px;font-weight:800;color:#8A4B06;line-height:1">24</div><div style="font-size:12.5px;color:#566378;margin-top:4px">Tertunda</div></div>
+            <div><div style="font-size:30px;font-weight:800;color:#A31B1B;line-height:1">12</div><div style="font-size:12.5px;color:#566378;margin-top:4px">Ditolak</div></div>
+          </div>
+          <div style="display:flex;height:10px;border-radius:5px;overflow:hidden;margin-top:18px;gap:2px" role="img" aria-label="Disetujui 76 persen, tertunda 16 persen, ditolak 8 persen">
+            <div style="width:75.7%;background:#059669"></div><div style="width:16.2%;background:#F5B335"></div><div style="width:8.1%;background:#D64545"></div>
+          </div>
+          <div style="font-size:12.5px;color:#566378;margin-top:10px">Tingkat persetujuan <strong style="color:#05603F">75,7%</strong> · 24 menunggu verifikasi manual</div>
+        </div>
+
+        <div class="card" style="padding:20px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div style="font-size:13.5px;font-weight:600;color:#566378">Efisiensi Waktu Tunggu (Turnaround Time)</div>
+            <span style="width:38px;height:38px;border-radius:10px;background:#FDEFC7;color:#8A4B06;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg></span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:10px;margin-top:10px">
+            <span style="font-size:40px;font-weight:800;letter-spacing:-0.03em;color:#0A1F44;line-height:1">47</span>
+            <span style="font-size:14px;color:#566378">menit rata-rata</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px">
+            <div style="font-size:13px;color:#566378"><span class="b b-ok" style="padding:3px 9px">-8 menit</span><div style="margin-top:6px">Target ≤ 60 menit</div></div>
+            <svg width="130" height="44" viewBox="0 0 130 44" fill="none" role="img" aria-label="Tren turnaround time 7 hari menurun"><polyline points="{{tat.points}}" stroke="#047857" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline><circle cx="{{tat.cx}}" cy="{{tat.cy}}" r="4" fill="#047857"></circle></svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- CALENDAR + SLOT / HELP BANNER -->
+      <section style="display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:18px" class="cols2">
+        <div class="card" style="padding:22px">
+          <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
+            <div>
+              <h2 style="margin:0;font-size:17px;font-weight:800;color:#0A1F44">Kalender &amp; Time-Slot Kedatangan Truk</h2>
+              <div style="font-size:13px;color:#566378;margin-top:2px">{{selDayLong}} · pilih slot untuk melanjutkan pemesanan</div>
+            </div>
+            <div style="display:flex;gap:12px;font-size:12px;color:#475569;flex-wrap:wrap">
+              <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:10px;height:10px;border-radius:3px;background:#059669;display:inline-block"></i>Tersedia</span>
+              <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:10px;height:10px;border-radius:3px;background:#E5A21C;display:inline-block"></i>Hampir Penuh</span>
+              <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:10px;height:10px;border-radius:3px;background:#C62828;display:inline-block"></i>Penuh</span>
+            </div>
+          </div>
+          <div role="group" aria-label="Pilih tanggal" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-top:18px">
+            <sc-for list="{{week}}" as="d" hint-placeholder-count="7">
+              <button onClick="{{d.pick}}" aria-pressed="{{d.on}}" style="{{d.style}}">
+                <span style="font-size:11.5px;font-weight:600;opacity:.85">{{d.dow}}</span>
+                <span style="font-size:20px;font-weight:800;line-height:1.1">{{d.num}}</span>
+                <span style="font-size:10.5px;font-weight:600;opacity:.85">{{d.load}}</span>
+              </button>
+            </sc-for>
+          </div>
+          <div role="group" aria-label="Pilih slot waktu" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:18px">
+            <sc-for list="{{slots}}" as="s" hint-placeholder-count="6">
+              <button class="slot" disabled="{{s.full}}" onClick="{{s.pick}}" aria-pressed="{{s.on}}" style="{{s.style}}">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+                  <span style="font-size:15px;font-weight:800">Slot {{s.time}} <span style="font-weight:600;font-size:12px;color:#566378">WIB</span></span>
+                  <span class="{{s.cls}}">{{s.label}}</span>
+                </div>
+                <div style="height:7px;border-radius:4px;background:#E9EDF3;overflow:hidden;margin-top:12px"><div style="{{s.barStyle}}"></div></div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;color:#566378;margin-top:7px"><span>{{s.used}} / {{s.total}} truk</span><span>{{s.left}}</span></div>
+              </button>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;padding-top:16px;border-top:1px solid #E8EDF4">
+            <div style="font-size:13.5px;color:#334155">{{pickedText}}</div>
+            <button class="btn btn-navy" onClick="{{go.booking}}">Lanjut ke Pemesanan Slot</button>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div style="border-radius:14px;padding:22px;background:#0A1F44;color:#fff;position:relative;overflow:hidden">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+              <span style="width:40px;height:40px;border-radius:50%;background:#25D366;color:#053B1D;display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.7 7.1L4 20.5l1.4-4.6A8 8 0 1121 12z"></path><path d="M9 9.5c.4 2 2 3.8 4.6 4.6l1.4-1.2-1.8-1-.8.7c-.8-.4-1.4-1-1.8-1.8l.7-.8-1-1.8z"></path></svg></span>
+              <strong style="font-size:15px">Bantuan Cepat</strong>
+            </div>
+            <p style="margin:0;font-size:14.5px;line-height:1.55;color:#DCE5F5">Butuh konfirmasi jadwal atau kendala validasi dokumen? Hubungi <strong style="color:#fff">WhatsApp Official Pelabuhan: 0895-3422-56816</strong></p>
+            <a class="btn" href="https://wa.me/62895342256816?text=Halo%20Pelabuhan%2C%20saya%20butuh%20bantuan%20terkait%20jadwal%20pengambilan%20barang." style="margin-top:16px;background:#25D366;color:#053B1D;width:100%">Chat WhatsApp Sekarang</a>
+          </div>
+          <div class="card" style="padding:20px">
+            <strong style="font-size:14.5px;color:#0A1F44">Perlu tindakan Anda</strong>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+              <button onClick="{{go.docs}}" style="display:flex;gap:10px;align-items:center;text-align:left;border:1px solid #F1D79A;background:#FFF8E5;border-radius:10px;padding:10px 12px;min-height:44px;font-size:13px;color:#5B3305"><span class="b b-warn" style="padding:3px 8px">2</span>Dokumen menunggu verifikasi manual</button>
+              <button onClick="{{go.docs}}" style="display:flex;gap:10px;align-items:center;text-align:left;border:1px solid #F3C4C4;background:#FEF1F1;border-radius:10px;padding:10px 12px;min-height:44px;font-size:13px;color:#7A1616"><span class="b b-bad" style="padding:3px 8px">1</span>STNK armada kedaluwarsa, unggah ulang</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TREND -->
+      <section class="card" style="padding:22px">
+        <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between">
+          <div>
+            <h2 style="margin:0;font-size:17px;font-weight:800;color:#0A1F44">Tren Lalu Lintas Pengambilan Barang</h2>
+            <div style="font-size:13px;color:#566378;margin-top:2px;min-height:19px">{{trend.tip}}</div>
+          </div>
+          <div role="group" aria-label="Rentang waktu" style="display:flex;gap:8px">
+            <sc-for list="{{ranges}}" as="r" hint-placeholder-count="3">
+              <button class="chip" aria-pressed="{{r.on}}" onClick="{{r.pick}}" style="{{r.style}}">{{r.label}}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:18px">
+          <div style="display:flex;flex-direction:column;justify-content:space-between;height:200px;font-size:11.5px;color:#64748B;text-align:right;width:30px"><span>{{trend.max}}</span><span>{{trend.mid}}</span><span>0</span></div>
+          <div style="flex:1;min-width:0;position:relative">
+            <div style="position:absolute;inset:0 0 0 0;height:200px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none"><div style="border-top:1px dashed #DDE3EC"></div><div style="border-top:1px dashed #DDE3EC"></div><div style="border-top:1px solid #C5CEDC"></div></div>
+            <div style="position:relative;height:200px;display:flex;align-items:flex-end;gap:{{trend.gap}}px">
+              <sc-for list="{{bars}}" as="b" hint-placeholder-count="14">
+                <div style="flex:1;min-width:0;height:100%;display:flex;align-items:flex-end">
+                  <button class="bar" aria-label="{{b.tip}}" onMouseEnter="{{b.enter}}" onFocus="{{b.enter}}" onMouseLeave="{{trend.leave}}" onBlur="{{trend.leave}}" style="{{b.style}}"></button>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:{{trend.gap}}px;margin-top:8px">
+              <sc-for list="{{bars}}" as="b" hint-placeholder-count="14">
+                <div style="flex:1;min-width:0;text-align:center;font-size:11px;color:#64748B;overflow:hidden">{{b.label}}</div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:12px;color:#475569">
+          <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:10px;height:10px;border-radius:3px;background:#C9D6EE;display:inline-block"></i>Pengambilan harian</span>
+          <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:10px;height:10px;border-radius:3px;background:#E5A21C;display:inline-block"></i>Puncak periode</span>
+        </div>
+      </section>
+
+      <!-- TABLE -->
+      <section class="card" style="overflow:hidden">
+        <div style="padding:20px 22px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between">
+          <div>
+            <h2 style="margin:0;font-size:17px;font-weight:800;color:#0A1F44">Jadwal Pengambilan</h2>
+            <div style="font-size:13px;color:#566378;margin-top:2px">{{tableCount}}</div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;flex:1 1 360px;justify-content:flex-end">
+            <label style="position:relative;flex:1 1 280px;max-width:420px">
+              <span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Cari jadwal</span>
+              <svg style="position:absolute;left:12px;top:13px;color:#64748B" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4.5 4.5"></path></svg>
+              <input class="fi" style="padding-left:40px" type="search" placeholder="Cari No. Kontainer / Plat Truk / Nama Driver" value="{{q}}" onInput="{{onQ}}">
+            </label>
+          </div>
+        </div>
+        <div role="group" aria-label="Filter status" style="padding:0 22px 16px;display:flex;gap:8px;flex-wrap:wrap">
+          <sc-for list="{{filters}}" as="f" hint-placeholder-count="4">
+            <button class="chip" aria-pressed="{{f.on}}" onClick="{{f.pick}}" style="{{f.style}}">{{f.label}} <span style="opacity:.8">({{f.n}})</span></button>
+          </sc-for>
+        </div>
+        <div style="overflow-x:auto">
+          <div class="tr th"><span>ID Booking</span><span>No. Kontainer</span><span>Plat Truk</span><span>Driver</span><span>Slot (WIB)</span><span>Terminal</span><span>Status</span></div>
+          <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+            <div class="tr"><span class="mono" style="font-size:12.5px;color:#475569">{{r.id}}</span><span class="mono" style="font-weight:600">{{r.cont}}</span><span style="font-weight:600">{{r.plate}}</span><span>{{r.driver}}</span><span>{{r.slot}}</span><span>{{r.term}}</span><span><span class="{{r.cls}}">{{r.label}}</span></span></div>
+          </sc-for>
+          <sc-if value="{{noRows}}" hint-placeholder-val="{{ false }}">
+            <div style="padding:36px 22px;text-align:center;color:#566378;font-size:14px;border-top:1px solid #E8EDF4">Tidak ada jadwal yang cocok dengan pencarian Anda.</div>
+          </sc-if>
+        </div>
+      </section>
+</sc-if>
+
+<!-- ===================== BOOKING ===================== -->
+<sc-if value="{{v.booking}}" hint-placeholder-val="{{ false }}">
+      <section style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px" class="cols2">
+        <div class="card" style="padding:22px">
+          <h2 style="margin:0;font-size:17px;font-weight:800;color:#0A1F44">1. Pilih Tanggal Pengambilan</h2>
+          <div style="font-size:13px;color:#566378;margin-top:2px">Oktober 2026 · tanggal sebelum hari ini tidak tersedia</div>
+          <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:16px;text-align:center;font-size:12px;font-weight:700;color:#64748B">
+            <span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span><span>Min</span>
+          </div>
+          <div role="group" aria-label="Kalender Oktober 2026" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:8px">
+            <sc-for list="{{month}}" as="m" hint-placeholder-count="35">
+              <button disabled="{{m.off}}" aria-pressed="{{m.on}}" onClick="{{m.pick}}" style="{{m.style}}">{{m.num}}</button>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:12px;color:#475569">
+            <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:10px;height:10px;border-radius:3px;background:#059669;display:inline-block"></i>Banyak slot</span>
+            <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:10px;height:10px;border-radius:3px;background:#E5A21C;display:inline-block"></i>Padat</span>
+            <span style="display:inline-flex;align-items:center;gap:6px"><i style="width:10px;height:10px;border-radius:3px;background:#C62828;display:inline-block"></i>Hampir penuh</span>
+          </div>
+        </div>
+
+        <div class="card" style="padding:22px">
+          <h2 style="margin:0;font-size:17px;font-weight:800;color:#0A1F44">2. Pilih Slot Waktu</h2>
+          <div style="font-size:13px;color:#566378;margin-top:2px">{{selDayLong}}</div>
+          <div role="group" aria-label="Slot waktu" style="display:flex;flex-direction:column;gap:10px;margin-top:16px">
+            <sc-for list="{{slots}}" as="s" hint-placeholder-count="6">
+              <button class="slot" disabled="{{s.full}}" onClick="{{s.pick}}" aria-pressed="{{s.on}}" style="{{s.style}}">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+                  <span style="font-size:15px;font-weight:800">{{s.time}} <span style="font-weight:600;font-size:12px;color:#566378">WIB</span></span>
+                  <span class="{{s.cls}}">{{s.label}}</span>
+                </div>
+                <div style="height:7px;border-radius:4px;background:#E9EDF3;overflow:hidden;margin-top:10px"><div style="{{s.barStyle}}"></div></div>
+                <div style="font-size:12px;color:#566378;margin-top:6px">{{s.used}} / {{s.total}} truk · {{s.left}}</div>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" style="padding:22px">
+        <h2 style="margin:0;font-size:17px;font-weight:800;color:#0A1F44">3. Detail Truk &amp; Kontainer</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:16px">
+          <label style="display:block;font-size:13px;font-weight:700;color:#334155">No. Kontainer<input class="fi mono" style="margin-top:6px" placeholder="mis. MSKU 7281934" value="{{f.cont}}" onInput="{{f.onCont}}"></label>
+          <label style="display:block;font-size:13px;font-weight:700;color:#334155">Plat Nomor Truk<input class="fi" style="margin-top:6px" placeholder="mis. B 9124 TXF" value="{{f.plate}}" onInput="{{f.onPlate}}"></label>
+          <label style="display:block;font-size:13px;font-weight:700;color:#334155">Nama Driver<input class="fi" style="margin-top:6px" placeholder="Sesuai SIM" value="{{f.driver}}" onInput="{{f.onDriver}}"></label>
+          <label style="display:block;font-size:13px;font-weight:700;color:#334155">Terminal<select class="fi" style="margin-top:6px" onChange="{{f.onTerm}}"><option value="Terminal 1">Terminal 1</option><option value="Terminal 2">Terminal 2</option><option value="Terminal 3">Terminal 3</option></select></label>
+        </div>
+        <div style="margin-top:20px;padding:16px;border-radius:12px;background:#F3F6FA;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between">
+          <div style="font-size:13.5px;color:#334155;line-height:1.5"><strong style="color:#0A1F44">Ringkasan:</strong> {{summary}}</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-out" onClick="{{go.overview}}">Batal</button>
+            <button class="btn btn-navy" onClick="{{confirmBooking}}">Konfirmasi Jadwal</button>
+          </div>
+        </div>
+        <sc-if value="{{f.error}}" hint-placeholder-val="{{ false }}"><div role="alert" style="margin-top:12px;padding:10px 14px;border-radius:10px;background:#FDE0E0;color:#7A1616;font-size:13.5px;font-weight:600">{{f.errorText}}</div></sc-if>
+        <div style="font-size:12.5px;color:#566378;margin-top:12px">Setelah dikonfirmasi, dokumen pendukung diperiksa pada tab Validasi Dokumen. Slot ditahan 30 menit.</div>
+      </section>
+</sc-if>
+
+<!-- ===================== DOCUMENTS ===================== -->
+<sc-if value="{{v.docs}}" hint-placeholder-val="{{ false }}">
+      <section style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px;align-items:start" class="cols2">
+        <div class="card" style="padding:22px">
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px">
+            <div>
+              <h2 style="margin:0;font-size:17px;font-weight:800;color:#0A1F44">Upload &amp; Checker Dokumen</h2>
+              <div style="font-size:13px;color:#566378;margin-top:2px">Booking TRX-2610-0412 · MSKU 7281934</div>
+            </div>
+            <span class="b b-info">{{docSummary}}</span>
+          </div>
+          <div style="height:8px;border-radius:4px;background:#E9EDF3;overflow:hidden;margin-top:14px"><div style="{{docBar}}"></div></div>
+          <div role="tablist" aria-label="Kategori dokumen" style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap">
+            <sc-for list="{{docTabs}}" as="t" hint-placeholder-count="3">
+              <button role="tab" aria-selected="{{t.on}}" class="chip" onClick="{{t.pick}}" style="{{t.style}}">{{t.label}}</button>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
+            <sc-for list="{{docs}}" as="d" hint-placeholder-count="3">
+              <div style="border:1px solid #DDE3EC;border-radius:12px;padding:14px 16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:{{d.bg}}">
+                <div style="flex:1 1 220px;min-width:0">
+                  <div style="font-size:14.5px;font-weight:700;color:#0A1F44">{{d.name}}</div>
+                  <div style="font-size:12.5px;color:#566378;margin-top:3px">{{d.file}}</div>
+                  <div style="font-size:12.5px;color:#334155;margin-top:6px;line-height:1.45">{{d.note}}</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px">
+                  <sc-if value="{{d.isOk}}" hint-placeholder-val="{{ false }}"><span class="b b-ok" style="padding:5px 11px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Dokumen Terverifikasi &amp; Asli</span></sc-if>
+                  <sc-if value="{{d.isManual}}" hint-placeholder-val="{{ false }}"><span class="b b-warn" style="padding:5px 11px">Memerlukan Verifikasi Manual</span></sc-if>
+                  <sc-if value="{{d.isBad}}" hint-placeholder-val="{{ false }}"><span class="b b-bad" style="padding:5px 11px">Dokumen Tidak Valid / Kedaluwarsa</span></sc-if>
+                  <sc-if value="{{d.isEmpty}}" hint-placeholder-val="{{ false }}"><span class="b b-mute" style="padding:5px 11px">Belum diunggah</span></sc-if>
+                  <sc-if value="{{d.isChecking}}" hint-placeholder-val="{{ false }}"><span class="b b-info" style="padding:5px 11px">Memeriksa keaslian…</span></sc-if>
+                  <button class="btn btn-out" disabled="{{d.busy}}" onClick="{{d.upload}}" style="min-height:40px;padding:0 14px;font-size:13px">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"></path><path d="M4 16v3.5a1.5 1.5 0 001.5 1.5h13a1.5 1.5 0 001.5-1.5V16"></path></svg>
+                    {{d.btn}}
+                  </button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- SCANNER -->
+        <div class="card" style="padding:22px">
+          <h2 style="margin:0;font-size:17px;font-weight:800;color:#0A1F44">Scan &amp; Verification Tool</h2>
+          <div style="font-size:13px;color:#566378;margin-top:2px">Periksa tanda tangan digital dan stempel otoritas pelabuhan.</div>
+          <div role="group" aria-label="Mode pemindai" style="display:flex;gap:8px;margin-top:14px">
+            <sc-for list="{{scanModes}}" as="m" hint-placeholder-count="2">
+              <button class="chip" aria-pressed="{{m.on}}" onClick="{{m.pick}}" style="{{m.style}}">{{m.label}}</button>
+            </sc-for>
+          </div>
+          <div style="position:relative;margin-top:14px;height:210px;border-radius:12px;background:#0A1F44;overflow:hidden;display:flex;align-items:center;justify-content:center">
+            <div style="position:absolute;inset:26px;border-radius:10px">
+              <i style="position:absolute;left:0;top:0;width:28px;height:28px;border-left:4px solid #F5B335;border-top:4px solid #F5B335;border-radius:8px 0 0 0"></i>
+              <i style="position:absolute;right:0;top:0;width:28px;height:28px;border-right:4px solid #F5B335;border-top:4px solid #F5B335;border-radius:0 8px 0 0"></i>
+              <i style="position:absolute;left:0;bottom:0;width:28px;height:28px;border-left:4px solid #F5B335;border-bottom:4px solid #F5B335;border-radius:0 0 0 8px"></i>
+              <i style="position:absolute;right:0;bottom:0;width:28px;height:28px;border-right:4px solid #F5B335;border-bottom:4px solid #F5B335;border-radius:0 0 8px 0"></i>
+            </div>
+            <div style="width:96px;height:96px;border-radius:8px;background:#fff;color:#0A1F44;display:flex;align-items:center;justify-content:center;opacity:{{scan.docOpacity}}">
+              <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><path d="M14 14h3v3h-3zM20 14v.01M14 20h3M20 17v4"></path></svg>
+            </div>
+            <sc-if value="{{scan.busy}}" hint-placeholder-val="{{ false }}"><div class="scanline" style="position:absolute;left:20px;right:20px;height:3px;background:#34D399;box-shadow:0 0 14px 3px rgba(52,211,153,.7)"></div></sc-if>
+            <div style="position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:12px;color:#B8C6E4">{{scan.hint}}</div>
+          </div>
+          <div style="margin-top:14px;font-size:12.5px;font-weight:700;color:#334155">Dokumen contoh</div>
+          <div role="group" aria-label="Dokumen contoh" style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+            <sc-for list="{{samples}}" as="s" hint-placeholder-count="3">
+              <button onClick="{{s.pick}}" aria-pressed="{{s.on}}" style="{{s.style}}">{{s.label}}</button>
+            </sc-for>
+          </div>
+          <button class="btn btn-navy" style="width:100%;margin-top:14px" disabled="{{scan.busy}}" onClick="{{startScan}}">{{scan.btn}}</button>
+
+          <sc-if value="{{scan.done}}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:16px;border-radius:12px;padding:16px;background:{{res.bg}};border:1px solid {{res.border}}">
+              <span class="{{res.cls}}" style="padding:5px 11px;font-size:13px">{{res.title}}</span>
+              <div style="font-size:13px;color:#334155;margin-top:10px;line-height:1.5">{{res.desc}}</div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+                <sc-for list="{{res.checks}}" as="c" hint-placeholder-count="4">
+                  <div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;align-items:center"><span>{{c.label}}</span><span class="{{c.cls}}" style="padding:3px 9px">{{c.val}}</span></div>
+                </sc-for>
+              </div>
+              <div style="margin-top:12px;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,.7);font-size:12px;color:#475569"><div style="font-weight:700;margin-bottom:4px">{{res.payloadTitle}}</div><div class="mono" style="word-break:break-all;line-height:1.5">{{res.payload}}</div></div>
+            </div>
+          </sc-if>
+        </div>
+      </section>
+</sc-if>
+
+<!-- ===================== TRACKING ===================== -->
+<sc-if value="{{v.track}}" hint-placeholder-val="{{ false }}">
+      <section style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:18px;align-items:start" class="cols2">
+        <div class="card" style="padding:18px;display:flex;flex-direction:column;gap:10px">
+          <h2 style="margin:0 0 4px;font-size:17px;font-weight:800;color:#0A1F44;padding:4px 4px 0">Kontainer Aktif</h2>
+          <sc-for list="{{tracks}}" as="t" hint-placeholder-count="5">
+            <button onClick="{{t.pick}}" aria-pressed="{{t.on}}" style="{{t.style}}">
+              <div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="mono" style="font-size:14px;font-weight:600">{{t.cont}}</span><span class="{{t.cls}}">{{t.label}}</span></div>
+              <div style="font-size:12.5px;color:#566378;margin-top:6px">{{t.cargo}} · {{t.plate}}</div>
+            </button>
+          </sc-for>
+        </div>
+        <div class="card" style="padding:22px">
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:flex-start">
+            <div>
+              <div class="mono" style="font-size:20px;font-weight:600;color:#0A1F44">{{trk.cont}}</div>
+              <div style="font-size:13px;color:#566378;margin-top:4px">{{trk.cargo}} · Kapal {{trk.vessel}}</div>
+            </div>
+            <span class="{{trk.cls}}" style="padding:5px 11px">{{trk.label}}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:16px">
+            <div style="padding:12px;border-radius:10px;background:#F3F6FA"><div style="font-size:12px;color:#566378">Truk</div><div style="font-weight:700;margin-top:2px">{{trk.plate}}</div></div>
+            <div style="padding:12px;border-radius:10px;background:#F3F6FA"><div style="font-size:12px;color:#566378">Slot</div><div style="font-weight:700;margin-top:2px">{{trk.slot}}</div></div>
+            <div style="padding:12px;border-radius:10px;background:#F3F6FA"><div style="font-size:12px;color:#566378">Lokasi Blok</div><div style="font-weight:700;margin-top:2px">{{trk.yard}}</div></div>
+          </div>
+          <ol style="list-style:none;margin:22px 0 0;padding:0">
+            <sc-for list="{{steps}}" as="s" hint-placeholder-count="6">
+              <li style="display:flex;gap:14px">
+                <div style="display:flex;flex-direction:column;align-items:center">
+                  <span style="{{s.dot}}">{{s.mark}}</span>
+                  <span style="{{s.line}}"></span>
+                </div>
+                <div style="padding-bottom:20px">
+                  <div style="font-size:14.5px;font-weight:700;color:{{s.color}}">{{s.label}}</div>
+                  <div style="font-size:12.5px;color:#566378;margin-top:2px">{{s.time}}</div>
+                </div>
+              </li>
+            </sc-for>
+          </ol>
+        </div>
+      </section>
+</sc-if>
+
+<!-- ===================== HELP ===================== -->
+<sc-if value="{{v.help}}" hint-placeholder-val="{{ false }}">
+      <section style="display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:18px;align-items:start" class="cols2">
+        <div class="card" style="padding:22px">
+          <h2 style="margin:0;font-size:17px;font-weight:800;color:#0A1F44">Pertanyaan yang Sering Diajukan</h2>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px">
+            <sc-for list="{{faqs}}" as="q" hint-placeholder-count="4">
+              <div style="border:1px solid #DDE3EC;border-radius:12px;overflow:hidden">
+                <button aria-expanded="{{q.open}}" onClick="{{q.toggle}}" style="width:100%;min-height:52px;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 16px;border:0;background:#fff;text-align:left;font-size:14.5px;font-weight:700;color:#0A1F44">{{q.q}}<span style="font-size:20px;color:#1B3F8B;line-height:1">{{q.sign}}</span></button>
+                <sc-if value="{{q.open}}" hint-placeholder-val="{{ false }}"><div style="padding:0 16px 16px;font-size:13.5px;line-height:1.6;color:#334155">{{q.a}}</div></sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div style="border-radius:14px;padding:24px;background:#0A1F44;color:#fff">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span style="width:40px;height:40px;border-radius:50%;background:#25D366;color:#053B1D;display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.7 7.1L4 20.5l1.4-4.6A8 8 0 1121 12z"></path></svg></span><strong style="font-size:16px">Bantuan Cepat</strong></div>
+            <p style="margin:0;font-size:14.5px;line-height:1.55;color:#DCE5F5">Butuh konfirmasi jadwal atau kendala validasi dokumen? Hubungi <strong style="color:#fff">WhatsApp Official Pelabuhan: 0895-3422-56816</strong></p>
+            <a class="btn" href="https://wa.me/62895342256816?text=Halo%20Pelabuhan%2C%20saya%20butuh%20bantuan%20terkait%20jadwal%20pengambilan%20barang." style="margin-top:16px;background:#25D366;color:#053B1D;width:100%">Chat WhatsApp Sekarang</a>
+          </div>
+          <div class="card" style="padding:20px">
+            <strong style="font-size:15px;color:#0A1F44">Asisten Otomatis Pelabuhan (24/7)</strong>
+            <p style="margin:8px 0 14px;font-size:13.5px;line-height:1.55;color:#475569">Tanyakan status jadwal, syarat dokumen, atau lokasi blok kontainer kapan saja.</p>
+            <button class="btn btn-navy" style="width:100%" onClick="{{openChat}}">Mulai Percakapan</button>
+          </div>
+        </div>
+      </section>
+</sc-if>
+
+      <div style="font-size:12px;color:#64748B;text-align:center">Mockup antarmuka · seluruh data pada tampilan ini adalah contoh ilustrasi.</div>
+    </main>
+  </div>
+
+  <!-- TOAST -->
+  <sc-if value="{{toast}}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:60;max-width:calc(100% - 32px);padding:14px 20px;border-radius:12px;background:#0A1F44;color:#fff;font-size:14px;font-weight:600;box-shadow:0 12px 30px rgba(10,31,68,.35)">{{toast}}</div>
+  </sc-if>
+
+  <!-- CHAT WIDGET -->
+  <div style="position:fixed;right:22px;bottom:22px;z-index:50;display:flex;flex-direction:column;align-items:flex-end;gap:12px;max-width:calc(100% - 32px)">
+    <sc-if value="{{chat.open}}" hint-placeholder-val="{{ false }}">
+      <div class="card" style="width:min(370px,100%);box-shadow:0 22px 50px rgba(10,31,68,.28);overflow:hidden;display:flex;flex-direction:column">
+        <div style="background:#0A1F44;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px">
+          <span style="width:38px;height:38px;border-radius:50%;background:#F5B335;color:#0A1F44;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="16" height="11" rx="3"></rect><path d="M12 8V4.5M9 13v1M15 13v1"></path></svg></span>
+          <div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14.5px">Asisten Otomatis Pelabuhan</div><div style="font-size:12px;color:#B8C6E4;display:flex;align-items:center;gap:6px"><i style="width:8px;height:8px;border-radius:50%;background:#10B981;display:inline-block"></i>Online 24/7</div></div>
+          <button aria-label="Tutup chat" onClick="{{closeChat}}" style="width:36px;height:36px;border-radius:8px;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:20px;line-height:1">×</button>
+        </div>
+        <div style="height:280px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#F6F8FB">
+          <sc-for list="{{chat.msgs}}" as="m" hint-placeholder-count="2">
+            <div style="{{m.style}}">{{m.text}}</div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px 0;background:#fff">
+          <sc-for list="{{chat.quick}}" as="c" hint-placeholder-count="3">
+            <button class="chip" onClick="{{c.pick}}" style="min-height:34px;font-size:12.5px">{{c.label}}</button>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:8px;padding:12px 14px;background:#fff">
+          <input class="fi" aria-label="Ketik pesan" placeholder="Ketik pertanyaan Anda" value="{{chat.input}}" onInput="{{chat.onInput}}" onKeyDown="{{chat.onKey}}">
+          <button class="btn btn-navy" onClick="{{chat.send}}" style="padding:0 16px">Kirim</button>
+        </div>
+        <a class="btn" href="https://wa.me/62895342256816" style="margin:0 14px 14px;background:#25D366;color:#053B1D;min-height:42px">Lanjut ke WhatsApp Official</a>
+      </div>
+    </sc-if>
+    <button onClick="{{toggleChat}}" aria-label="Buka Asisten Otomatis Pelabuhan" style="display:flex;align-items:center;gap:10px;min-height:56px;padding:0 20px 0 14px;border-radius:999px;border:0;background:#0F2A5C;color:#fff;font-size:14px;font-weight:700;box-shadow:0 10px 26px rgba(10,31,68,.4)">
+      <span style="width:34px;height:34px;border-radius:50%;background:#25D366;color:#053B1D;display:flex;align-items:center;justify-content:center"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.7 7.1L4 20.5l1.4-4.6A8 8 0 1121 12z"></path></svg></span>
+      Asisten Otomatis Pelabuhan (24/7)
+    </button>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const D = {
+      view: 'overview', selDay: 19, selSlot: null, q: '', filter: 'all', range: 14, hov: null,
+      notifOpen: false, readAll: false, toast: '', rowsAdded: [],
+      fCont: '', fPlate: '', fDriver: '', fTerm: 'Terminal 1', fError: '',
+      docTab: 'company', docs: { edo: 'verified', do: 'manual', sj: 'empty', sim: 'verified', ktp: 'empty', stnk: 'invalid' },
+      scanMode: 'qr', sample: 'a', scan: 'idle',
+      track: 0, faq: 0,
+      chatOpen: false, msgs: null, chatInput: ''
+    };
+    const s = Object.assign({}, D, this.state || {});
+    const set = (o) => this.setState(o);
+    const flash = (t) => { set({ toast: t }); setTimeout(() => this.setState({ toast: '' }), 3600); };
+
+    // ---------- navigation ----------
+    const views = ['overview', 'booking', 'docs', 'track', 'help'];
+    const go = {}; const nav = {}; const v = {};
+    views.forEach((k) => {
+      go[k] = () => set({ view: k, notifOpen: false });
+      v[k] = s.view === k;
+      nav[k] = s.view === k ? 'background:rgba(255,255,255,.13);color:#fff' : '';
+    });
+    const heads = {
+      overview: ['Overview', 'Sabtu, 17 Oktober 2026 · ringkasan operasional pengambilan barang'],
+      booking: ['Penjadwalan Truck Arrival / Slot Booking', 'Pilih tanggal, slot kedatangan, lalu lengkapi detail truk'],
+      docs: ['Validasi Dokumen & Port Pass', 'Unggah dokumen dan periksa keaslian sebelum truk tiba di gerbang'],
+      track: ['Tracking Kontainer & Cargo', 'Pantau posisi kontainer dari kapal hingga gate-out'],
+      help: ['Pusat Bantuan & Chatbot CS', 'Dukungan 24 jam untuk jadwal dan validasi dokumen']
+    };
+    const head = { title: heads[s.view][0], sub: heads[s.view][1] };
+
+    // ---------- notifications ----------
+    const nRaw = [
+      { cls: 'b b-ok', tag: 'Disetujui', text: 'e-DO TRX-2610-0412 terverifikasi. Slot 08:00 - 10:00 dikonfirmasi.', time: '2 menit lalu', un: true },
+      { cls: 'b b-warn', tag: 'Tertunda', text: 'Delivery Order CMAU 3390175 menunggu verifikasi manual petugas.', time: '14 menit lalu', un: true },
+      { cls: 'b b-bad', tag: 'Ditolak', text: 'STNK B 9124 TXF kedaluwarsa. Unggah dokumen terbaru.', time: '1 jam lalu', un: true },
+      { cls: 'b b-info', tag: 'Info', text: 'Slot 10:00 - 12:00 Senin 19 Okt hampir penuh.', time: '3 jam lalu', un: false }
+    ];
+    const notifs = nRaw.map((n) => ({ ...n, bg: (n.un && !s.readAll) ? '#F4F8FF' : '#fff' }));
+    const unread = s.readAll ? 0 : 3;
+
+    // ---------- dates & slots ----------
+    const dow = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+    const dowLong = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const dowOf = (d) => (4 + (d - 1)) % 7; // 1 Okt 2026 = Kamis
+    const slotDefs = [
+      ['06:00 - 08:00', 24, 40], ['08:00 - 10:00', 40, 40], ['10:00 - 12:00', 34, 40],
+      ['13:00 - 15:00', 18, 40], ['15:00 - 17:00', 31, 40], ['19:00 - 21:00', 9, 40]
+    ];
+    const usedFor = (day, i) => Math.max(3, Math.min(40, slotDefs[i][1] + ((day * 5 + i * 3) % 13) - 6 + (day === 19 && i === 1 ? 6 : 0)));
+    const loadOf = (day) => { let t = 0; for (let i = 0; i < 6; i++) t += usedFor(day, i); return Math.round(t / 240 * 100); };
+    const selDayLong = dowLong[dowOf(s.selDay)] + ', ' + s.selDay + ' Oktober 2026';
+
+    const slots = slotDefs.map((d, i) => {
+      const used = usedFor(s.selDay, i); const total = d[2]; const pct = Math.round(used / total * 100);
+      const full = used >= total; const near = !full && pct >= 80;
+      const on = s.selSlot === i;
+      const color = full ? '#C62828' : near ? '#E5A21C' : '#059669';
+      return {
+        time: d[0], used, total, full, on,
+        cls: full ? 'b b-bad' : near ? 'b b-warn' : 'b b-ok',
+        label: full ? 'Penuh' : near ? 'Hampir Penuh' : 'Tersedia',
+        left: full ? 'Tidak ada kuota' : (total - used) + ' kuota tersisa',
+        barStyle: 'height:100%;width:' + pct + '%;background:' + color,
+        style: on ? 'border-color:#0F2A5C;background:#EEF3FC;box-shadow:0 0 0 3px #BFD2F5' : '',
+        pick: () => set({ selSlot: i })
+      };
+    });
+    const pickedText = s.selSlot === null ? 'Belum ada slot dipilih.' : 'Dipilih: ' + selDayLong + ', Slot ' + slotDefs[s.selSlot][0] + ' WIB';
+
+    const week = [];
+    for (let k = 0; k < 7; k++) {
+      const day = 17 + k; const on = s.selDay === day; const ld = loadOf(day);
+      week.push({
+        dow: dow[dowOf(day)], num: day, on, load: ld + '% terisi',
+        style: 'display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;min-height:76px;border-radius:12px;border:1.5px solid ' + (on ? '#0F2A5C' : '#DDE3EC') + ';background:' + (on ? '#0F2A5C' : '#fff') + ';color:' + (on ? '#fff' : '#1E293B'),
+        pick: () => set({ selDay: day, selSlot: null })
+      });
+    }
+    const month = [];
+    for (let k = 0; k < 3; k++) month.push({ num: '', off: true, on: false, style: 'visibility:hidden;min-height:44px', pick: () => {} });
+    for (let d = 1; d <= 31; d++) {
+      const off = d < 17; const on = s.selDay === d; const ld = loadOf(d);
+      const dot = ld >= 80 ? '#C62828' : ld >= 65 ? '#E5A21C' : '#059669';
+      month.push({
+        num: d, off, on,
+        style: 'min-height:48px;border-radius:10px;border:1.5px solid ' + (on ? '#0F2A5C' : '#E3E8F0') + ';background:' + (on ? '#0F2A5C' : off ? '#F3F5F8' : '#fff') + ';color:' + (on ? '#fff' : off ? '#9AA6B8' : '#1E293B') + ';font-size:14px;font-weight:700;box-shadow:inset 0 -4px 0 ' + (off ? 'transparent' : dot),
+        pick: () => set({ selDay: d, selSlot: null })
+      });
+    }
+
+    // ---------- KPI sparkline ----------
+    const tatv = [58, 55, 53, 51, 52, 49, 47];
+    const pts = tatv.map((t, i) => [6 + i * 20, 6 + (t - 44) / 16 * 30]);
+    const tat = { points: pts.map((p) => p[0] + ',' + p[1].toFixed(1)).join(' '), cx: pts[6][0], cy: pts[6][1].toFixed(1) };
+
+    // ---------- trend ----------
+    const ranges = [7, 14, 30].map((r) => ({
+      label: r + ' hari', on: s.range === r,
+      style: s.range === r ? 'background:#0F2A5C;color:#fff;border-color:#0F2A5C' : '',
+      pick: () => set({ range: r, hov: null })
+    }));
+    const base = [];
+    for (let i = 0; i < 30; i++) {
+      const dd = 17 - (29 - i); // day offset
+      base.push(Math.round(118 + 26 * Math.sin(i * 0.85) + ((i % 7 === 5) ? -22 : 0) + (i % 7 === 2 ? 14 : 0) + i * 0.7));
+    }
+    base[29] = 148;
+    const data = base.slice(30 - s.range);
+    const mx = Math.max.apply(null, data); const scaleMax = Math.ceil(mx / 20) * 20;
+    const date = (back) => { const d = new Date(2026, 9, 17 - back); return { d: d.getDate(), m: d.getMonth() + 1, w: dowLong[d.getDay()] }; };
+    const bars = data.map((val, i) => {
+      const back = s.range - 1 - i; const dt = date(back);
+      const peak = val === mx; const hv = s.hov === i;
+      const showLabel = s.range <= 14 || i % 3 === 0 || i === data.length - 1;
+      return {
+        label: showLabel ? dt.d : '',
+        tip: dt.w + ' ' + dt.d + '/' + dt.m + ': ' + val + ' pengambilan',
+        style: 'height:' + Math.round(val / scaleMax * 100) + '%;width:100%;background:' + (hv ? '#0F2A5C' : peak ? '#E5A21C' : '#C9D6EE'),
+        enter: () => set({ hov: i })
+      };
+    });
+    const trend = {
+      max: scaleMax, mid: scaleMax / 2, gap: s.range > 14 ? 4 : 8,
+      tip: s.hov !== null ? bars[s.hov].tip : 'Arahkan kursor ke batang untuk melihat jumlah harian · rata-rata ' + Math.round(data.reduce((a, b) => a + b, 0) / data.length) + ' per hari',
+      leave: () => set({ hov: null })
+    };
+
+    // ---------- table ----------
+    const baseRows = [
+      ['TRX-2610-0412', 'MSKU 7281934', 'B 9124 TXF', 'Hendra Gunawan', '08:00 - 10:00', 'Terminal 2', 'ok'],
+      ['TRX-2610-0413', 'TCLU 4417620', 'B 9877 KQM', 'Yusuf Ramadhan', '08:00 - 10:00', 'Terminal 1', 'ok'],
+      ['TRX-2610-0414', 'CMAU 3390175', 'F 8203 GH', 'Dedi Supriyadi', '10:00 - 12:00', 'Terminal 2', 'warn'],
+      ['TRX-2610-0415', 'TEMU 6048213', 'B 9461 UDS', 'Agus Salim', '10:00 - 12:00', 'Terminal 1', 'ok'],
+      ['TRX-2610-0416', 'HLBU 2285906', 'D 8012 AAB', 'Rizky Pratama', '13:00 - 15:00', 'Terminal 3', 'bad'],
+      ['TRX-2610-0417', 'OOLU 8836142', 'B 9302 FCW', 'Slamet Riyadi', '13:00 - 15:00', 'Terminal 2', 'ok'],
+      ['TRX-2610-0418', 'MRKU 5521078', 'B 9755 NZE', 'Bambang Wijaya', '15:00 - 17:00', 'Terminal 1', 'warn'],
+      ['TRX-2610-0419', 'SEGU 9170364', 'L 9611 UD', 'Ahmad Fauzi', '15:00 - 17:00', 'Terminal 3', 'ok']
+    ];
+    const all = (s.rowsAdded || []).concat(baseRows);
+    const lab = { ok: 'Disetujui', warn: 'Tertunda', bad: 'Ditolak' };
+    const qn = s.q.trim().toLowerCase();
+    const mk = (r) => ({ id: r[0], cont: r[1], plate: r[2], driver: r[3], slot: r[4], term: r[5], cls: 'b b-' + r[6], label: lab[r[6]], key: r[6] });
+    const matchQ = (r) => !qn || (r[1] + ' ' + r[2] + ' ' + r[3]).toLowerCase().indexOf(qn) >= 0;
+    const qrows = all.filter(matchQ);
+    const rows = qrows.filter((r) => s.filter === 'all' || r[6] === s.filter).map(mk);
+    const cnt = (k) => qrows.filter((r) => k === 'all' || r[6] === k).length;
+    const filters = [['all', 'Semua'], ['ok', 'Disetujui'], ['warn', 'Tertunda'], ['bad', 'Ditolak']].map((f) => ({
+      label: f[1], n: cnt(f[0]), on: s.filter === f[0],
+      style: s.filter === f[0] ? 'background:#0F2A5C;color:#fff;border-color:#0F2A5C' : '',
+      pick: () => set({ filter: f[0] })
+    }));
+
+    // ---------- booking form ----------
+    const f = {
+      cont: s.fCont, plate: s.fPlate, driver: s.fDriver, error: !!s.fError, errorText: s.fError,
+      onCont: (e) => set({ fCont: e.target.value, fError: '' }),
+      onPlate: (e) => set({ fPlate: e.target.value, fError: '' }),
+      onDriver: (e) => set({ fDriver: e.target.value, fError: '' }),
+      onTerm: (e) => set({ fTerm: e.target.value })
+    };
+    const summary = (s.selSlot === null ? 'belum ada slot dipilih' : selDayLong + ', ' + slotDefs[s.selSlot][0] + ' WIB') + ' · ' + s.fTerm;
+    const confirmBooking = () => {
+      if (s.selSlot === null) { set({ fError: 'Pilih satu slot waktu terlebih dahulu.' }); return; }
+      if (!s.fCont.trim() || !s.fPlate.trim() || !s.fDriver.trim()) { set({ fError: 'Lengkapi No. Kontainer, Plat Truk, dan Nama Driver.' }); return; }
+      const id = 'TRX-2610-' + String(420 + (s.rowsAdded || []).length);
+      const row = [id, s.fCont.trim().toUpperCase(), s.fPlate.trim().toUpperCase(), s.fDriver.trim(), slotDefs[s.selSlot][0], s.fTerm, 'warn'];
+      set({ rowsAdded: [row].concat(s.rowsAdded || []), view: 'overview', fCont: '', fPlate: '', fDriver: '', fError: '', filter: 'all', q: '' });
+      flash('Jadwal ' + id + ' dibuat. Status Tertunda hingga dokumen terverifikasi.');
+    };
+
+    // ---------- documents ----------
+    const docCfg = {
+      company: [
+        ['edo', 'e-Delivery Order (e-DO)', 'eDO_2610_0412.pdf', 'verified'],
+        ['do', 'Delivery Order', 'DO_MSKU7281934.pdf', 'manual'],
+        ['sj', 'Surat Jalan', 'Surat_Jalan_0987.pdf', 'verified']
+      ],
+      driver: [
+        ['sim', 'SIM Supir (B II Umum)', 'SIM_Hendra_Gunawan.jpg', 'verified'],
+        ['ktp', 'KTP Supir', 'KTP_Hendra_Gunawan.jpg', 'verified']
+      ],
+      fleet: [
+        ['stnk', 'STNK Armada B 9124 TXF', 'STNK_B9124TXF.pdf', 'invalid']
+      ]
+    };
+    const allDocs = [].concat(docCfg.company, docCfg.driver, docCfg.fleet);
+    const notes = {
+      verified: 'Tanda tangan digital dan stempel otoritas cocok dengan basis data pelabuhan.',
+      manual: 'Stempel tidak terbaca jelas. Petugas akan memeriksa dalam estimasi 15 menit.',
+      invalid: 'Masa berlaku berakhir 02/09/2026. Unggah dokumen yang masih berlaku.',
+      empty: 'Format PDF, JPG, atau PNG, maksimal 5 MB.',
+      checking: 'Membaca QR Code dan memeriksa tanda tangan digital.'
+    };
+    const upload = (id, outcome) => () => {
+      set({ docs: { ...s.docs, [id]: 'checking' } });
+      setTimeout(() => this.setState((p) => ({ docs: { ...(p.docs || D.docs), [id]: outcome } })), 1700);
+    };
+    const docTabs = [['company', 'Perusahaan'], ['driver', 'Supir'], ['fleet', 'Armada Truk']].map((t) => ({
+      label: t[1], on: s.docTab === t[0],
+      style: s.docTab === t[0] ? 'background:#0F2A5C;color:#fff;border-color:#0F2A5C' : '',
+      pick: () => set({ docTab: t[0] })
+    }));
+    const docs = docCfg[s.docTab].map((d) => {
+      const st = s.docs[d[0]];
+      return {
+        name: d[1], file: st === 'empty' ? 'Belum ada berkas' : d[2], note: notes[st],
+        isOk: st === 'verified', isManual: st === 'manual', isBad: st === 'invalid', isEmpty: st === 'empty', isChecking: st === 'checking',
+        busy: st === 'checking',
+        bg: st === 'invalid' ? '#FFF7F7' : st === 'manual' ? '#FFFBF0' : '#fff',
+        btn: st === 'empty' ? 'Unggah' : st === 'checking' ? 'Memeriksa' : 'Unggah Ulang',
+        upload: upload(d[0], st === 'invalid' || st === 'empty' ? 'verified' : 'verified')
+      };
+    });
+    const okN = allDocs.filter((d) => s.docs[d[0]] === 'verified').length;
+    const docSummary = okN + ' dari ' + allDocs.length + ' terverifikasi';
+    const docBar = 'height:100%;width:' + Math.round(okN / allDocs.length * 100) + '%;background:#059669;transition:width .4s';
+
+    // ---------- scanner ----------
+    const scanModes = [['qr', 'Pemindai QR Code'], ['ocr', 'OCR Reader']].map((m) => ({
+      label: m[1], on: s.scanMode === m[0],
+      style: s.scanMode === m[0] ? 'background:#0F2A5C;color:#fff;border-color:#0F2A5C' : '',
+      pick: () => set({ scanMode: m[0], scan: 'idle' })
+    }));
+    const sampleDefs = {
+      a: { label: 'e-DO TRX-2610-0412 (resmi)', cls: 'b b-ok', title: 'Dokumen Terverifikasi & Asli', bg: '#EAF8F1', border: '#A9E3C8',
+        desc: 'Seluruh pemeriksaan lolos. Dokumen sah dan dapat digunakan untuk Port Pass.',
+        checks: [['Tanda tangan digital', 'Valid', 'ok'], ['Stempel otoritas pelabuhan', 'Cocok', 'ok'], ['QR / hash dokumen', 'Sesuai', 'ok'], ['Masa berlaku', 's.d. 30/11/2026', 'ok']],
+        qr: 'ID: TRX-2610-0412 | Penerbit: Otoritas Pelabuhan | Hash: 9f3a...c71e', ocr: 'No. e-DO: TRX-2610-0412 | Kontainer: MSKU 7281934 | Penerima: PT Samudra Karya Logistik' },
+      b: { label: 'Surat Jalan 0987/SJ/X (buram)', cls: 'b b-warn', title: 'Memerlukan Verifikasi Manual', bg: '#FFF8E6', border: '#F1D79A',
+        desc: 'Tanda tangan digital valid, namun stempel tidak terbaca otomatis. Petugas akan memverifikasi.',
+        checks: [['Tanda tangan digital', 'Valid', 'ok'], ['Stempel otoritas pelabuhan', 'Tidak terbaca', 'warn'], ['QR / hash dokumen', 'Sesuai', 'ok'], ['Masa berlaku', 's.d. 20/12/2026', 'ok']],
+        qr: 'ID: 0987/SJ/X | Penerbit: PT Samudra Karya | Hash: 41bd...08aa', ocr: 'No. SJ: 0987/SJ/X | Stempel: [kontras rendah, kepercayaan 54%] | Tgl: 15/10/2026' },
+      c: { label: 'STNK B 9124 TXF (kedaluwarsa)', cls: 'b b-bad', title: 'Dokumen Tidak Valid / Kedaluwarsa', bg: '#FEF1F1', border: '#F3C4C4',
+        desc: 'Masa berlaku telah berakhir dan hash tidak cocok. Port Pass tidak dapat diterbitkan.',
+        checks: [['Tanda tangan digital', 'Tidak cocok', 'bad'], ['Stempel otoritas pelabuhan', 'Tidak ditemukan', 'bad'], ['QR / hash dokumen', 'Tidak sesuai', 'bad'], ['Masa berlaku', 'Berakhir 02/09/2026', 'bad']],
+        qr: 'ID: B9124TXF | Hash tidak ditemukan pada basis data', ocr: 'No. Polisi: B 9124 TXF | Berlaku s.d.: 02/09/2026 | Pajak: kedaluwarsa' }
+    };
+    const samples = ['a', 'b', 'c'].map((k) => ({
+      label: sampleDefs[k].label, on: s.sample === k,
+      style: 'display:flex;align-items:center;min-height:44px;padding:0 14px;border-radius:10px;font-size:13.5px;font-weight:600;text-align:left;border:1.5px solid ' + (s.sample === k ? '#0F2A5C' : '#DDE3EC') + ';background:' + (s.sample === k ? '#EEF3FC' : '#fff') + ';color:#1E293B',
+      pick: () => set({ sample: k, scan: 'idle' })
+    }));
+    const sd = sampleDefs[s.sample];
+    const res = {
+      cls: sd.cls, title: sd.title, bg: sd.bg, border: sd.border, desc: sd.desc,
+      checks: sd.checks.map((c) => ({ label: c[0], val: c[1], cls: 'b b-' + c[2] })),
+      payloadTitle: s.scanMode === 'qr' ? 'Payload QR Code' : 'Teks hasil OCR',
+      payload: s.scanMode === 'qr' ? sd.qr : sd.ocr
+    };
+    const scanBusy = s.scan === 'scanning';
+    const scan = {
+      busy: scanBusy, done: s.scan === 'done',
+      docOpacity: scanBusy ? 0.55 : 1,
+      hint: scanBusy ? 'Memindai dokumen…' : s.scan === 'done' ? 'Pemindaian selesai' : (s.scanMode === 'qr' ? 'Arahkan QR Code ke dalam bingkai' : 'Posisikan dokumen di dalam bingkai'),
+      btn: scanBusy ? 'Memindai…' : s.scan === 'done' ? 'Pindai Ulang' : 'Mulai Pindai & Verifikasi'
+    };
+    const startScan = () => {
+      set({ scan: 'scanning' });
+      setTimeout(() => this.setState({ scan: 'done' }), 2200);
+    };
+
+    // ---------- tracking ----------
+    const trkRaw = [
+      ['MSKU 7281934', 'Elektronik, 18 ton', 'B 9124 TXF', 'MV Nusantara Star', '08:00 - 10:00', 'Blok C-14', 4, 'ok'],
+      ['TCLU 4417620', 'Tekstil, 21 ton', 'B 9877 KQM', 'MV Pacific Dawn', '08:00 - 10:00', 'Blok A-03', 5, 'ok'],
+      ['CMAU 3390175', 'Suku cadang, 14 ton', 'F 8203 GH', 'MV Selat Sunda', '10:00 - 12:00', 'Blok B-22', 2, 'warn'],
+      ['HLBU 2285906', 'Makanan olahan, 19 ton', 'D 8012 AAB', 'MV Baltic Trader', '13:00 - 15:00', 'Blok D-09', 1, 'bad'],
+      ['OOLU 8836142', 'Kimia non-B3, 22 ton', 'B 9302 FCW', 'MV Orient Pearl', '13:00 - 15:00', 'Blok C-27', 3, 'ok']
+    ];
+    const stepDefs = [
+      ['Kapal sandar di dermaga', '15 Okt, 05:40'], ['Bongkar muat selesai', '15 Okt, 21:15'], ['Dokumen & customs release', '16 Okt, 11:30'],
+      ['Siap diambil di lapangan penumpukan', '17 Okt, 07:50'], ['Gate-in truk', 'Estimasi 19 Okt, 08:20'], ['Gate-out & selesai', 'Estimasi 19 Okt, 09:10']
+    ];
+    const stLabel = ['Menunggu kapal', 'Bongkar muat', 'Proses dokumen', 'Siap diambil', 'Gate-in', 'Selesai'];
+    const tracks = trkRaw.map((t, i) => ({
+      cont: t[0], cargo: t[1], plate: t[2], on: s.track === i,
+      label: t[7] === 'bad' ? 'Tertahan' : stLabel[Math.min(t[6], 5)],
+      cls: t[7] === 'bad' ? 'b b-bad' : t[6] >= 4 ? 'b b-ok' : 'b b-info',
+      style: 'display:block;width:100%;text-align:left;padding:12px 14px;border-radius:12px;min-height:44px;border:1.5px solid ' + (s.track === i ? '#0F2A5C' : '#DDE3EC') + ';background:' + (s.track === i ? '#EEF3FC' : '#fff') + ';color:#1E293B',
+      pick: () => set({ track: i })
+    }));
+    const cur = trkRaw[s.track];
+    const trk = { cont: cur[0], cargo: cur[1], vessel: cur[3], plate: cur[2], slot: cur[4] + ' WIB', yard: cur[5],
+      label: tracks[s.track].label, cls: tracks[s.track].cls };
+    const steps = stepDefs.map((d, i) => {
+      const done = i < cur[6]; const now = i === cur[6]; const blocked = now && cur[7] === 'bad';
+      const dotBg = blocked ? '#C62828' : done ? '#059669' : now ? '#F5B335' : '#fff';
+      return {
+        label: d[0], time: blocked ? 'Tertahan: dokumen ditolak, perlu unggah ulang' : done ? d[1] : now ? 'Sedang berlangsung' : d[1],
+        color: (done || now) ? '#0A1F44' : '#64748B',
+        mark: done ? '✓' : blocked ? '!' : '',
+        dot: 'width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:none;border:2px solid ' + (done ? '#059669' : blocked ? '#C62828' : now ? '#E5A21C' : '#C5CEDC') + ';background:' + dotBg + ';color:' + (done || blocked ? '#fff' : '#3B2606'),
+        line: i === stepDefs.length - 1 ? 'display:none' : 'flex:1;width:2px;min-height:26px;background:' + (done ? '#059669' : '#DDE3EC')
+      };
+    });
+
+    // ---------- help ----------
+    const faqRaw = [
+      ['Bagaimana cara mengubah jadwal pengambilan?', 'Buka menu Penjadwalan, pilih jadwal Anda, lalu pilih slot baru paling lambat 4 jam sebelum jendela slot dimulai. Perubahan tergantung ketersediaan kuota.'],
+      ['Dokumen apa saja yang wajib diunggah?', 'Perusahaan: e-DO, Delivery Order, Surat Jalan. Supir: SIM dan KTP. Armada: STNK. Seluruh dokumen harus masih berlaku.'],
+      ['Mengapa dokumen saya berstatus verifikasi manual?', 'Sistem tidak dapat membaca stempel atau QR Code dengan yakin, misalnya karena foto buram. Petugas akan memeriksa secara manual. Unggah ulang dengan pencahayaan lebih baik untuk mempercepat.'],
+      ['Truk saya terlambat dari slot. Apa yang terjadi?', 'Truk tetap dapat masuk jika kuota slot berikutnya masih tersedia. Jika tidak, hubungi WhatsApp Official Pelabuhan untuk penjadwalan ulang.']
+    ];
+    const faqs = faqRaw.map((q, i) => ({ q: q[0], a: q[1], open: s.faq === i, sign: s.faq === i ? '−' : '+', toggle: () => set({ faq: s.faq === i ? -1 : i }) }));
+
+    // ---------- chat ----------
+    const greet = [{ me: false, text: 'Halo! Saya Asisten Otomatis Pelabuhan. Ada yang bisa saya bantu terkait jadwal atau dokumen?' }];
+    const msgsRaw = s.msgs || greet;
+    const reply = (t) => {
+      const x = t.toLowerCase();
+      if (x.indexOf('jadwal') >= 0 || x.indexOf('slot') >= 0) return 'Slot tersedia dapat dilihat di menu Penjadwalan. Untuk konfirmasi jadwal khusus, hubungi WhatsApp Official 0895-3422-56816.';
+      if (x.indexOf('dokumen') >= 0 || x.indexOf('valid') >= 0 || x.indexOf('stnk') >= 0) return 'Dokumen wajib: e-DO, Delivery Order, Surat Jalan, STNK, SIM, dan KTP. Cek status keaslian di menu Validasi Dokumen.';
+      if (x.indexOf('kontainer') >= 0 || x.indexOf('lacak') >= 0 || x.indexOf('track') >= 0) return 'Masukkan nomor kontainer di menu Tracking untuk melihat posisi dan estimasi gate-out.';
+      return 'Maaf, saya belum memahami pertanyaan itu. Silakan lanjutkan ke WhatsApp Official Pelabuhan 0895-3422-56816 untuk dibantu petugas.';
+    };
+    const sendMsg = (t) => {
+      const text = (t || '').trim(); if (!text) return;
+      set({ msgs: msgsRaw.concat([{ me: true, text }, { me: false, text: reply(text) }]), chatInput: '' });
+    };
+    const chat = {
+      open: s.chatOpen, input: s.chatInput,
+      msgs: msgsRaw.map((m) => ({
+        text: m.text,
+        style: 'max-width:85%;padding:10px 13px;border-radius:14px;font-size:13.5px;line-height:1.5;align-self:' + (m.me ? 'flex-end' : 'flex-start') + ';background:' + (m.me ? '#0F2A5C' : '#fff') + ';color:' + (m.me ? '#fff' : '#1E293B') + ';border:1px solid ' + (m.me ? '#0F2A5C' : '#DDE3EC')
+      })),
+      quick: ['Cek jadwal slot', 'Syarat dokumen', 'Lacak kontainer'].map((l) => ({ label: l, pick: () => sendMsg(l) })),
+      onInput: (e) => set({ chatInput: e.target.value }),
+      onKey: (e) => { if (e.key === 'Enter') sendMsg(s.chatInput); },
+      send: () => sendMsg(s.chatInput)
+    };
+
+    return {
+      go, nav, v, head,
+      notifs, unread, unreadAny: unread > 0, notifOpen: s.notifOpen,
+      toggleNotif: () => set({ notifOpen: !s.notifOpen }),
+      markRead: () => set({ readAll: true }),
+      selDayLong, slots, week, month, pickedText, tat,
+      ranges, bars, trend,
+      q: s.q, onQ: (e) => set({ q: e.target.value }), filters, rows, noRows: rows.length === 0,
+      tableCount: rows.length + ' dari ' + all.length + ' jadwal ditampilkan',
+      f, summary, confirmBooking,
+      docTabs, docs, docSummary, docBar,
+      scanModes, samples, scan, res, startScan,
+      tracks, trk, steps, faqs,
+      toast: s.toast, chat,
+      openChat: () => set({ chatOpen: true }),
+      closeChat: () => set({ chatOpen: false }),
+      toggleChat: () => set({ chatOpen: !s.chatOpen })
+    };
+  }
+}
+</script>
+</body>
+</html>
